@@ -13,11 +13,13 @@ media
 # Python cache
 __pycache__/
 
-# Documents
-docs
-
 # Generated PDF
-slides-jp/*.pdf
+*.pdf
 
 # Claude Code local settings
 .claude/
+.claude-notes/
+
+# Other agent tooling local settings
+.agent/
+.codex/
