@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <title>量子航法で超高精度な位置測定　〜冷たい原子がGPSを置き換える？〜</title>
+  <title>Shor のアルゴリズムを量子コンピュータで動かしてみた 〜9.61 ドルで確かめた「うまくいかなさ」〜</title>
 
   <link rel="stylesheet" href="dist/reset.css">
   <link rel="stylesheet" href="dist/reveal.css">
@@ -13,7 +13,6 @@
   <link rel="stylesheet" href="styles/custom-style.css">
 
   <!-- Add KaTeX CSS and JS -->
-  <link rel="stylesheet" href="plugin/math/katex.min.css">
   <script src="plugin/math/katex.js"></script>
   <script src="plugin/math/math.js"></script>
 
@@ -24,12 +23,16 @@
 <body>
   <div class="reveal">
     <div class="slides">
-      <section data-markdown data-separator="---">
+      <!-- The separator is "a line holding only ---". A bare "---" would also split on the
+           separator row of a Markdown table. -->
+      <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="^\n--\n">
         <textarea data-template>
 
-### TBA
+### Shor のアルゴリズムを
+### 量子コンピュータで動かしてみた
+#### 〜 9.61 ドルで確かめた「うまくいかなさ」 〜
 
-<img src="assets/images/title.png" height="400px">
+<img src="assets/images/title.png" height="300px" style="box-shadow: none;border:none;">
 
 ---
 
@@ -63,7 +66,33 @@
 
 <div class="simple-box">
 
-* TBA
+* 素因数分解の量子アルゴリズム **Shor のアルゴリズム**を、
+  **本物の量子コンピュータ**で動かしてみた話
+  * 「15 = 3 × 5」に使う**周期発見の回路**を組む
+  * 超伝導量子コンピュータ **IQM Garnet** にクラウド経由で投げる
+  * 結果を**事前に書いておいた予測**と比べる
+
+</div>
+
+<div class="highlight-box">
+
+* 新規性はない **「動かしてみた」系の自由研究**
+* **筆者は量子計算の専門家ではない**
+* 先に結論: **うまくいかなかった**
+
+</div>
+
+---
+
+### 今日話さないこと
+
+<div class="simple-box">
+
+* 量子誤り訂正、RSA 暗号がいつ破られるか
+* Shor のアルゴリズムの厳密な導出
+  * 位相推定や連分数展開の証明
+* クラウド側のインフラ設計
+  * 権限の分離、課金のガードレール、Terraform
 
 </div>
 
@@ -71,13 +100,699 @@
 
 <div class="highlight-box">
 
-※ TBA
+実装と判断の記録は GitHub のリポジトリと Wiki で公開 (最後にリンク)
 
 </div>
 
 ---
 
+## Shor のアルゴリズム
+### 因数分解を「周期探し」に言い換える
 
+---
+
+### 動機 — なぜやろうと思ったのか
+
+<div class="simple-box">
+
+* 「量子コンピュータが 15 = 3 × 5 を因数分解した」は有名な話
+  * 最初の実験は 2001 年 (NMR 量子コンピュータ)
+* 今は**個人がクラウドで実機を使える** (Amazon Braket)
+  * 実行 1 回 0.30 USD + 測定 1 回 0.00145 USD (IQM Garnet)
+* 月 100 USD の予算で、**自分の手で確かめたい**
+
+</div>
+
+<div class="highlight-box">
+
+ど真ん中のモチベーション: **教科書の回路は、今の実機でどこまで動くのか？**
+
+</div>
+
+---
+
+### 隠れた周期を探す
+
+<img src="assets/images/wiki/03_modular_period.png" height="400px">
+
+<p class="caption">$7^x$ を 15 で割った余りは 1 → 7 → 4 → 13 → 1 … と <strong>周期 $r = 4$</strong> で繰り返す</p>
+
+---
+
+### 周期が分かれば因数が分かる
+
+<div class="simple-box">
+
+* $7^4 - 1 = (7^2 - 1)(7^2 + 1)$ は 15 の倍数
+* $7^2$ を 15 で割った余りは 4 なので
+
+$$ \gcd(4 - 1,\ 15) = 3, \qquad \gcd(4 + 1,\ 15) = 5 $$
+
+</div>
+
+<div class="highlight-box">
+
+* 周期さえ分かれば、あとは**最大公約数を取るだけ**
+* 大きな数では、**周期を見つけるのが難しい** (古典計算機では)
+
+</div>
+
+---
+
+### 量子が担当するのは「周期探し」だけ
+
+<img src="assets/images/wiki/01_algorithm_overview.png" width="100%">
+
+<p class="caption">黄色が古典計算、青が量子計算。量子コンピュータが直接「3 と 5」を出すわけではない</p>
+
+---
+
+### 回路は 2 つのレジスタでできている
+
+<img src="assets/images/wiki/02_quantum_circuit.png" height="240px">
+
+<div class="simple-box">
+
+* **count**: 指数 $x$ を重ね合わせで全部持つ
+* **work**: $7^x$ を 15 で割った余りを書き込む
+* 最後に count を**逆量子フーリエ変換**して測る
+
+</div>
+
+---
+
+### 量子状態はこう変わる
+
+<img src="assets/images/wiki/04_quantum_state_evolution.png" height="430px">
+
+<p class="caption">横軸 count、縦軸 work の確率。B で周期 4 の縞ができ、C の逆フーリエ変換で 4 本のピークに集まる</p>
+
+---
+
+### 周期構造のフーリエ変換 = ピーク
+
+<img src="assets/images/wiki/05_measurement_peaks.png" height="250px">
+
+<div class="simple-box">
+
+* 周期的な縞をフーリエ変換するとピークが立つ
+  * **回折格子や結晶の X 線回折と同じ構造**
+* 測定値が 64 なら $64/256 = 1/4$ → 分母の **4 が周期**
+
+</div>
+
+---
+
+### シミュレータでは完璧に動く
+
+<div class="simple-box">
+
+* ノイズのないローカルシミュレータ (12 qubit、1000 ショット)
+* 理想の分布との距離は $3 \times 10^{-16}$ — 数値誤差の範囲で一致
+* 測定値から $r = 4$、そして $15 = 3 \times 5$
+
+</div>
+
+<br>
+
+<div class="highlight-box">
+
+ここまでは教科書どおり。**話が面白くなるのは、実機に載せるところから**
+
+</div>
+
+---
+
+## 「15 = 3 × 5 が出た」は
+## 成功の証拠になるか？
+
+---
+
+### 落とし穴①: サイコロでも因数は出る
+
+<div class="simple-box">
+
+* 周期の候補が正しいかは**古典計算で検算できる**
+* → **でたらめな測定値でも、運が良ければ因数に辿り着く**
+
+</div>
+
+<div class="results-box">
+
+<table>
+  <thead>
+    <tr><th>乱数しか返さない壊れた装置が</th><th>1 回の測定で正解に辿り着く割合</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>一般的な設定</td><td>約 12%</td></tr>
+    <tr><td><strong>今回の実機の設定</strong></td><td><strong>75%</strong></td></tr>
+  </tbody>
+</table>
+
+</div>
+
+<div class="highlight-box">
+
+**「因数が出た」を成功の条件にしてはいけない**
+
+</div>
+
+---
+
+### 落とし穴②: 答えを回路に埋め込める
+
+<div class="simple-box">
+
+* 教科書どおりの回路は、今の実機には大きすぎる
+* 多くの実機デモは、**答え (周期) を知った上で回路を簡略化**している
+* 答えを知っていれば、小さな回路で「因数分解」を演出できてしまう
+  * Smolin, Smith, Vargo (2013) の批判
+
+</div>
+
+<div class="highlight-box">
+
+このプロジェクトの約束: **回路に入れた手掛かりを必ず記録する**
+
+</div>
+
+---
+
+### じゃあ何を測るのか
+
+<div class="simple-box">
+
+* 見るのは因数ではなく、**測定結果の分布そのもの**
+* 実機の分布を「理想」と「乱数」の混合とみなす
+
+$$ p_{\mathrm{device}} \approx \lambda \cdot p_{\mathrm{ideal}} + (1 - \lambda) \cdot p_{\mathrm{uniform}} $$
+
+* **信号残存率 $\lambda$**: 1 なら理想、0 なら乱数
+
+</div>
+
+<div class="highlight-box">
+
+実機に投げる前に、**エミュレータで $\lambda$ を予測して書き残す**
+
+</div>
+
+---
+
+### 余談: 最初は 6 を因数分解するつもりだった
+
+<div class="simple-box">
+
+* 当初の目標は、小さくて簡単そうな **6 = 2 × 3**
+* 調べると、6 では量子部分が**何も貢献しない**
+  * 使える底は 5 だけで、$5 \equiv -1 \pmod 6$ は Shor の失敗条件そのもの
+  * それでも出てくる因数 2 は「6 は偶数」と同じ情報
+
+</div>
+
+<div class="highlight-box">
+
+主役を **15** に変更。6 は「成功と書いてはいけない例」として残した
+
+</div>
+
+---
+
+## 実機に載せる
+### 手掛かりとゲート数
+
+---
+
+### 今の量子コンピュータの制約
+
+<div class="simple-box">
+
+* **ゲートを掛けるたびに誤る**
+  * 2 qubit ゲート 1 回で約 0.3〜2% (候補の 3 機)
+* **隣どうしの qubit にしか 2 qubit ゲートを掛けられない** (超伝導の格子型)
+* 教科書どおりの掛け算回路は、15 相手でも**数千ゲート**
+
+</div>
+
+<br>
+
+<div class="highlight-box">
+
+誤りが積もると、残る信号は $e^{-10} \approx 5 \times 10^{-5}$ 程度。**乱数と区別できない**
+
+</div>
+
+---
+
+### 手掛かり①: $15 = 2^4 - 1$
+
+<div class="simple-box">
+
+* 4 ビットの数を 2 倍して 15 で割った余り = **ビットを 1 つ左に回すだけ**
+  * あふれた最上位ビットが最下位に戻る ($15 = 1111_2$)
+* 7 倍は「3 ビット回して、全ビット反転」
+  * 例: $0001 \to 1000 \to 0111$ (1 × 7 = 7)
+* 掛け算が**ビットの入れ替えと反転だけ**で書ける
+
+</div>
+
+<div class="highlight-box">
+
+数千ゲート → **2 qubit ゲート 46 個**。ただし **15 にしか使えない**専用回路
+
+</div>
+
+---
+
+### 手掛かり②: 精度を切り詰める
+
+<img src="assets/images/wiki/n15_01_logical_circuit.png" height="280px">
+
+<div class="highlight-box">
+
+* count を **2 qubit** に (教科書の推奨は 9)。合計 **6 qubit**
+  * 「周期は 4 以下」と知っているからできる選択
+* 手掛かりを 2 つ使った以上、**この実験は「因数分解」ではない**
+
+</div>
+
+---
+
+### 格子に載せると回路が倍になる
+
+<img src="assets/images/wiki/n15_02_layout_garnet.png" height="330px">
+
+<div class="highlight-box">
+
+* IQM Garnet (左が今回の回路)。ゲートは**線で結ばれた隣どうしだけ**
+* 離れた qubit は入れ替えて運ぶ → 2 qubit ゲート **46 → 88 個**
+
+</div>
+
+---
+
+### 残る信号を事前に見積もる
+
+<img src="assets/images/wiki/n15_07_budget_vs_signal.png" height="370px">
+
+<div class="simple-box">
+
+* 回路が使う全ゲートの誤り率の合計 = **誤り予算 $B$**
+* 残る信号はおよそ $\lambda \approx e^{-B}$
+
+</div>
+
+---
+
+### エミュレータの予測
+
+<div class="results-box nowrap-table">
+
+<table>
+  <thead>
+    <tr><th>機械</th><th>方式</th><th>ゲート数</th><th>予測 $\lambda$</th><th>測定 1 回</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>IQM Emerald</td><td>超伝導 54 qubit</td><td>91</td><td>0.73</td><td>0.00160 USD</td></tr>
+    <tr><td><strong>IQM Garnet</strong></td><td>超伝導 20 qubit</td><td><strong>88</strong></td><td><strong>0.54</strong></td><td><strong>0.00145 USD</strong></td></tr>
+    <tr><td>AQT IBEX Q1</td><td>イオントラップ 12 qubit</td><td>46</td><td>0.39</td><td>0.02350 USD</td></tr>
+  </tbody>
+</table>
+
+</div>
+
+<p class="caption">ゲート数は 2 qubit ゲートの個数。2026-09-13 時点の校正データによる予測</p>
+
+<div class="highlight-box">
+
+* 一番短い回路 (IBEX) が一番良いとは限らない
+* **安くてやり直しのきく Garnet から始める**
+
+</div>
+
+---
+
+### お金を溶かさない仕組み
+
+<div class="simple-box">
+
+* 実機は**課金される**: 3000 回の測定で 4.65 USD
+* シミュレータの検証を通った回路**だけ**を投げられる仕組みを自作
+* クラウド側にも支出の上限と権限の分離を設定
+
+</div>
+
+<br>
+
+<div class="highlight-box">
+
+余談: 最初の 1 回は、**自分で作った安全装置に自分が止められた** (課金なし)
+
+</div>
+
+---
+
+## 実機の結果
+### IQM Garnet、3000 ショット
+
+---
+
+### 実行条件
+
+<div class="results-box">
+
+<table>
+  <tbody>
+    <tr><td>デバイス</td><td><strong>IQM Garnet</strong> (超伝導、20 qubit)</td></tr>
+    <tr><td>実行日</td><td>2026-09-23</td></tr>
+    <tr><td>回路</td><td>$N = 15$、底 7、count 2 + work 4 = 6 qubit</td></tr>
+    <tr><td>2 qubit ゲート / 深さ</td><td>88 / 284</td></tr>
+    <tr><td>測定回数 (ショット)</td><td>3000</td></tr>
+    <tr><td>投入から完了まで</td><td>約 3 秒</td></tr>
+    <tr><td>費用</td><td>4.65 USD</td></tr>
+  </tbody>
+</table>
+
+</div>
+
+---
+
+### 結果: 縞は見えるが、薄い
+
+<img src="assets/images/garnet_t2_joint.svg" height="450px" style="box-shadow: none;border:none;">
+
+<p class="caption">上: 理想 (4 本の縦縞) / 中: エミュレータの予測 / 下: 実機</p>
+
+---
+
+### 数字で見ると
+
+<div class="results-box">
+
+<table>
+  <thead>
+    <tr><th>指標</th><th>実機</th><th>予測</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>信号残存率 $\lambda$</strong></td><td><strong>0.272 ± 0.012</strong></td><td>0.564</td></tr>
+    <tr><td>work が正しい 4 値に乗った割合</td><td>0.454</td><td>0.673</td></tr>
+    <tr><td>正しい周期に辿り着く割合</td><td>0.695</td><td>0.745</td></tr>
+    <tr><td>(参考) 乱数しか返さない装置の同じ割合</td><td colspan="2">0.750</td></tr>
+  </tbody>
+</table>
+
+</div>
+
+<div class="highlight-box">
+
+* 信号は**ある** (ゼロから 22σ)。でも予測の**半分以下** (予測から 24σ)
+* 「周期に辿り着く割合」は**乱数以下**だった
+
+</div>
+
+---
+
+### まず解析ミスを疑う
+
+<img src="assets/images/garnet_t2_work_marginal.svg" height="280px" style="box-shadow: none;border:none;">
+
+<div class="highlight-box">
+
+* 上位 4 値は 1, 4, 7, 13 — **理想の 4 値そのもの**
+* 外れた値の大半は、正しい値から **1 ビットだけ反転**
+* 配線や解析の取り違えではない。**本当に信号が弱い**
+
+</div>
+
+---
+
+### 偏りに気づく
+
+<div class="simple-box">
+
+* **1 のビットが少ない値ほど出やすい**
+  * work: 1 (0001) と 4 (0100) が、7 (0111) と 13 (1101) より多い
+  * count: 00 が 0.305、11 が 0.203
+* qubit が $\lvert 1 \rangle$ から $\lvert 0 \rangle$ に**落ちている**ように見える
+
+</div>
+
+<br>
+
+<div class="highlight-box">
+
+エネルギー緩和の匂い。**エミュレータのノイズモデルには入っていなかった**
+
+</div>
+
+---
+
+### T1 と T2: 量子ビットの「寿命」
+
+<div class="simple-box">
+
+* **T1 (エネルギー緩和)**: $\lvert 1 \rangle$ が $\lvert 0 \rangle$ に落ちるまでの時間
+* **T2 (位相緩和)**: 重ね合わせの**位相**が乱れるまでの時間
+  * NMR の縦緩和・横緩和と同じ概念
+* 今回使った qubit の T2 は **5.6〜28 µs**
+* 回路全体は**約 6〜11 µs** (ゲート時間は仮定)
+
+</div>
+
+<div class="highlight-box">
+
+ゲートを受けずに**待っている qubit** が、待っているあいだに崩れていく
+
+</div>
+
+---
+
+### 待機中の減衰を予測に足す
+
+<img src="assets/images/garnet_t2_lambda_models.svg" height="280px" style="box-shadow: none;border:none;">
+
+<div class="highlight-box">
+
+* 読み出し誤りの偏り → **効かない**
+* 待機中の T1/T2 → 予測が **0.29** に下がり、偏りも再現
+* ゲート時間は**仮定**。これは**示唆**であって証明ではない
+
+</div>
+
+---
+
+## 一番大事な気づき
+### 測っていたのは「量子らしさ」ではなかった
+
+---
+
+### この数字は何を測っていたのか
+
+<div class="simple-box">
+
+$$ \frac{1}{2} \sum_{x=0}^{3} \lvert x \rangle \lvert 7^x \bmod 15 \rangle $$
+
+* 掛け算のあと、work の値は 1, 7, 4, 13 と**全部違う**
+* 理想の分布は、**count を途中で測った場合とまったく同じ**
+
+</div>
+
+<div class="highlight-box">
+
+count の重ね合わせが壊れていても**同じ分布**が出る。
+$\lambda$ が見ていたのは**掛け算回路の出来**だけ
+
+</div>
+
+---
+
+### 15 という数の特殊性
+
+<div class="simple-box">
+
+* 15 を法とする周期は **1, 2, 4 だけ** — 全部 2 のべき
+* 2 のべきの周期は、2 進数の count で**ぴったり割り切れる**
+  * 干渉で「惜しい値を打ち消す」出番がない
+* 干渉を見るには、周期が 2 のべきでない数が要る
+  * 例: $N = 21$ (底 2 の周期は 6)
+
+</div>
+
+<br>
+
+<div class="highlight-box">
+
+「15 の因数分解」は、量子アルゴリズムの検証としては**甘い問題**だった
+
+</div>
+
+---
+
+### 追加実験: 位相は保たれているか
+
+<div class="simple-box">
+
+* 増やした 1 qubit は、重ね合わせのまま**待機するだけ**
+* 位相を保てていれば、測定値は**偶数だけ** (0, 2, 4, 6)
+* 位相が壊れていれば、奇数も同じだけ出る
+* **可視度** = 偶数の割合 − 奇数の割合 (理想 1、壊れると 0)
+
+</div>
+
+<div class="highlight-box">
+
+事前の予測: エミュレータ **0.83** / 待機の減衰を足すと **0.25〜0.42**
+
+</div>
+
+---
+
+### 結果: 奇数がほぼ同じだけ出た
+
+<img src="assets/images/garnet_t3_y_marginal.svg" height="440px" style="box-shadow: none;border:none;">
+
+<p class="caption">青: 理想 (偶数だけ) / 緑: エミュレータの予測 / 橙: 実機 (同日、3000 ショット、4.65 USD)</p>
+
+---
+
+### どちらの予測も外れた
+
+<img src="assets/images/garnet_t3_visibility.svg" height="300px" style="box-shadow: none;border:none;">
+
+<div class="simple-box">
+
+* 可視度 **0.087 ± 0.018**
+* 待機していた qubit は、回路のあいだに**ほぼ完全に位相を失った**
+
+</div>
+
+---
+
+### 何が起きていたのか
+
+<div class="simple-box">
+
+1. **置き場所が悪かった**
+   * 待機 qubit は、8 個のうち **T2 が最短 (5.6 µs)** の場所にいた
+   * 自作の配置プログラムはゲートの誤り率しか見ていなかった
+2. **それでも予測 (0.25) より悪い**
+   * 候補: **隣の qubit で動くゲートが位相を乱す** (未検証)
+
+</div>
+
+<div class="highlight-box">
+
+カタログ値の T2 は、動いている回路の中での**上限**でしかない
+
+</div>
+
+---
+
+## 振り返り
+
+---
+
+### かかった費用
+
+<div class="results-box">
+
+<table>
+  <thead>
+    <tr><th>実行</th><th>測定回数</th><th>費用</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>経路確認 (1 回目は権限設定で拒否)</td><td>10</td><td>0.31 USD</td></tr>
+    <tr><td>本測定 (count 2 qubit)</td><td>3000</td><td>4.65 USD</td></tr>
+    <tr><td>追加実験 (count 3 qubit)</td><td>3000</td><td>4.65 USD</td></tr>
+    <tr><td><strong>合計</strong></td><td></td><td><strong>9.61 USD</strong></td></tr>
+  </tbody>
+</table>
+
+</div>
+
+<div class="highlight-box">
+
+見積りとサービス側の集計の差は 1 セントもなかった
+
+</div>
+
+---
+
+### 9.61 ドルで分かったこと
+
+<div class="simple-box">
+
+* 校正データだけのエミュレータは、実機の誤りを**約 2 倍過小評価**した
+* 欠けていたのは**待機中のデコヒーレンス**
+* 15 相手では、測れるのは「掛け算回路の出来」と「待機 qubit の位相」まで
+* 待機 qubit は、カタログ値の T2 より速く位相を失う
+
+</div>
+
+<br>
+
+<div class="highlight-box">
+
+どれも**実機を通さなければ見えなかった**
+
+</div>
+
+---
+
+### 先行事例と比べると
+
+<div class="simple-box">
+
+* Amazon Braket での公開事例を調べた (2026-09-23 時点)
+  * AWS 公式の教材は**シミュレータ**での実行
+  * 実機の例は、回路の一部か、**答えを使って簡略化した回路**
+  * 教材の回路は実機向けの**変換の段階で失敗**、という報告も
+
+</div>
+
+<div class="highlight-box">
+
+今の実機で Shor がうまくいかないのは**主流の結果**。
+今回は**自分の数字で確かめた**
+
+</div>
+
+---
+
+### 続けない判断と、次の一手
+
+<div class="simple-box">
+
+* 実機はここで**一区切り**
+  * 予測が実測を説明できないまま投げても「またずれた」で終わる
+* 先にオフライン (無料) でやること
+  * 配置プログラムに「待機時間と T2」を入れる
+  * 隣のゲートの影響をモデルに入れる
+* 次の実験の候補: **CHSH 不等式**
+  * 2 qubit と数ゲートで、エンタングルメントの質を直接測る
+
+</div>
+
+---
+
+### 完走した感想
+
+<div class="simple-box">
+
+* **「うまくいかない」を数字で踏む**のは、思ったより楽しい
+* **測る前に予測を書いておく**と、外れ方から学べる
+* 「何を測っているつもりか」は、**測ったあとで**ひっくり返ることがある
+* 誤り訂正なしで回路を深くする難しさを、**10 ドルで体感**できた
+
+</div>
+
+<br>
+
+<div class="highlight-box">
+
+実機を作り、動かし、毎日校正している**プロのスゴ味**も味わった
+
+</div>
 
 ---
 
@@ -85,7 +800,32 @@
 
 <div class="simple-box">
 
-1. TBA 
+1. Shor の周期発見回路 (15 専用) を超伝導量子コンピュータで実行
+2. 信号残存率は **0.27** (予測 0.56)。主因は待機中のデコヒーレンス
+3. しかも 15 相手では、その数字は**量子的な干渉を見ていなかった**
+4. 待機 qubit の位相は**ほぼ完全に失われていた** (可視度 0.09)
+
+</div>
+
+<div class="highlight-box">
+
+「15 = 3 × 5 が出た」は何の証拠にもならない。**何を測ったのかを問い続ける**
+
+</div>
+
+---
+
+### 詳しく知りたい方へ
+
+<div class="simple-box">
+
+* 実装と記録: [github.com/s-sasaki-earthsea-wizard/shor-braket](https://github.com/s-sasaki-earthsea-wizard/shor-braket)
+* Wiki の読み物
+  * [図で追う Shor のアルゴリズム](https://github.com/s-sasaki-earthsea-wizard/shor-braket/wiki/Shor-Algorithm-Visual-Walkthrough)
+  * [N=15 を QPU 互換回路で](https://github.com/s-sasaki-earthsea-wizard/shor-braket/wiki/Shor-N15-on-Local-Emulator)
+  * [実機で最初の 3000 ショット](https://github.com/s-sasaki-earthsea-wizard/shor-braket/wiki/First-Hardware-Run-on-IQM-Garnet)
+  * [Amazon Braket で Shor を動かした先行事例](https://github.com/s-sasaki-earthsea-wizard/shor-braket/wiki/Amazon-Braket-Shor-Prior-Art)
+* 開発には AI エージェント (Claude Code ほか) を活用
 
 </div>
 
@@ -103,7 +843,130 @@
 
 <img src="assets/images/qrcode.png" width="200px">
 
-					</textarea>
+---
+
+## Appendix
+
+---
+
+### Appendix 1: 信号残存率の求め方
+
+<div class="simple-box">
+
+$$ \lambda = \frac{m - f}{1 - f} $$
+
+* $m$: 測定結果が「理想で確率を持つマス」に乗った割合
+* $f$: そのマスが全体に占める割合
+* 本測定: $m = 0.454$、$f = 16/64$ → $\lambda = 0.272$
+
+</div>
+
+---
+
+### Appendix 2: 6 が縮退している理由
+
+<img src="assets/images/wiki/07_n6_rejection.png" height="360px">
+
+<div class="simple-box">
+
+* 周期 2 は得られるが、$5^{1} \equiv -1 \pmod 6$ で棄却される
+* 片方の gcd から出る 2 は「6 は偶数」と同じ情報
+
+</div>
+
+---
+
+### Appendix 3: 3 機のゲート数
+
+<img src="assets/images/wiki/n15_03_gate_budget.png" height="400px">
+
+<p class="caption">赤が入れ替え (SWAP) による増分。格子型の IQM ではほぼ倍になり、全結合の IBEX ではゼロ</p>
+
+---
+
+### Appendix 4: エミュレータが予測した分布
+
+<img src="assets/images/wiki/n15_04_joint_distributions.png" height="390px">
+
+<p class="caption">左: 理想 / 中: 今回の回路 / 右: 手掛かりを 1 つ減らした回路</p>
+
+---
+
+### Appendix 5: 論理回路が実機の形になるまで
+
+<img src="assets/images/wiki/n15_00_pipeline.png" width="100%">
+
+<p class="caption">配置と経路探索、機械固有のゲートへの分解は自作。各段階で理想分布との一致を確かめている</p>
+
+---
+
+### Appendix 6: 反復型の位相推定は効かなかった
+
+<div class="simple-box">
+
+* 測定結果で次の操作を切り替える方式なら、count を 1 qubit で使い回せる
+* エミュレータで比べると、$\lambda$ は標準の方式と **±0.03 以内**
+  * IQM Emerald: 0.70 対 0.73 / IQM Garnet: 0.53 対 0.54
+* 入れ替えの回数は掛け算の側で決まり、count の数に依らないため
+
+</div>
+
+---
+
+### Appendix 7: 自分の安全装置に止められた話
+
+<div class="simple-box">
+
+* 投入は**多要素認証 (MFA) を通した一時的な権限**に限定
+* その権限の中では「MFA なし」と判定される仕様だった
+* 自分で書いた「MFA なしは拒否」のルールが発動
+* 事前の検証 22 項目は全部通っていた
+
+</div>
+
+<div class="highlight-box">
+
+**シミュレータは、与えた前提の下での答えしか返さない**
+
+</div>
+
+---
+
+### Appendix 8: 追加実験のモデル比較
+
+<div class="results-box">
+
+<table>
+  <thead>
+    <tr><th>モデル (count 3 qubit)</th><th>可視度</th><th>work の正答率</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>エミュレータ</td><td>0.80</td><td>0.673</td></tr>
+    <tr><td>＋ 待機 T1/T2 (Ramsey T2、20 / 40 ns)</td><td>0.254</td><td>0.461</td></tr>
+    <tr><td>＋ 待機 T1/T2 (Ramsey T2、40 / 80 ns)</td><td>0.099</td><td>0.367</td></tr>
+    <tr><td><strong>実機</strong></td><td><strong>0.087</strong></td><td><strong>0.424</strong></td></tr>
+  </tbody>
+</table>
+
+</div>
+
+<p class="caption">括弧内は T2 の種類と、仮定したゲート時間 (1 qubit / 2 qubit)。ゲート時間を伸ばすだけでは両方を同時には説明できない</p>
+
+---
+
+### 参考文献
+
+<div class="simple-box">
+
+* P. W. Shor, SIAM J. Comput. 26, 1484 (1997)
+* L. M. K. Vandersypen et al., Nature 414, 883 (2001)
+* J. A. Smolin, G. Smith, A. Vargo, "Oversimplifying quantum factoring", Nature 499, 163 (2013)
+* Bagourd et al., arXiv:2512.15330
+* Amazon Braket Algorithm Library, "Shor's Algorithm" notebook
+
+</div>
+
+        </textarea>
       </section>
     </div>
   </div>
@@ -112,6 +975,7 @@
   <script src="plugin/notes/notes.js"></script>
   <script src="plugin/markdown/markdown.js"></script>
   <script src="plugin/highlight/highlight.js"></script>
+
   <script>
     // More info about initialization & config:
     // - https://revealjs.com/initialization/
@@ -119,9 +983,15 @@
     Reveal.initialize({
       hash: true,
 
+      // KaTeX: load from a locally vendored copy (offline-safe; no CDN at talk time).
+      katex: {
+        local: 'vendor/katex'
+      },
+
       // Learn about plugins: https://revealjs.com/plugins/
       plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX]
     });
+
   </script>
 </body>
 

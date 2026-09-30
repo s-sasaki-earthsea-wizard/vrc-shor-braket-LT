@@ -283,3 +283,32 @@
     border-radius: 20px;
     border: 2px solid #6f42c1;
 }
+
+/*********************************************
+ * Tables inside boxes (compact, full width)
+ *********************************************/
+.reveal .results-box table,
+.reveal .simple-box table {
+    font-size: 0.72em;
+    margin: 6px 0;
+    width: 100%;
+}
+
+.reveal .results-box table th,
+.reveal .results-box table td,
+.reveal .simple-box table th,
+.reveal .simple-box table td {
+    padding: 5px 10px;
+    line-height: 1.35;
+}
+
+.reveal .nowrap-table table th,
+.reveal .nowrap-table table td {
+    white-space: nowrap;
+}
+
+/* Keep a gap when a highlight follows another box without a <br>. */
+.reveal .simple-box + .highlight-box,
+.reveal .results-box + .highlight-box {
+    margin-top: 16px;
+}
