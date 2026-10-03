@@ -60,13 +60,121 @@
 
 ---
 
+### 量子コンピュータの噂
+
+<div class="simple-box">
+
+* **素因数分解**: 数を素数の掛け算に分けること
+  * 例: 15 = 3 × 5
+* 掛け算は一瞬。でも**逆向きは難しい**
+  * 巨大な素数 2 つを掛けた数 (例えば 617 桁) を分解するのは、
+    今のコンピュータでは現実的な時間で終わらない
+
+</div>
+
+<br>
+
+<div class="highlight-box">
+
+「量子コンピュータなら、巨大な数の素因数分解も**あっという間に解ける**」と言われている
+
+</div>
+
+---
+
+### RSA 暗号と素因数分解
+
+<div class="simple-box">
+
+* **RSA 暗号**: Web の HTTPS (サーバ証明書の署名) などで広く使われている
+* 鍵の材料は巨大な合成数 $N = p \times q$
+  * $N$ は**全世界に公開**、素因数 $p$ と $q$ は**秘密**
+  * $N$ を素因数分解できれば、暗号は破れる
+
+</div>
+
+<br>
+
+<div class="highlight-box">
+
+* 安全性の根拠: 古典コンピュータで**効率よく素因数分解する方法が見つかっていない**こと
+* 「不可能」と証明されたわけではない
+
+</div>
+
+---
+
+### 量子で暗号が破られる？
+
+<div class="simple-box">
+
+* **正当な部分**
+  * Shor のアルゴリズムは RSA を**原理的には**破れる
+  * 今の通信を保存して、将来解読される心配がある
+  * 耐量子暗号への移行が始まっている (米国 NIST が 2024 年に標準化)
+* **まだ先の部分**
+  * 2048 bit の RSA には、誤りのある qubit が**約 100 万個**必要 (2025 年の見積もり)
+  * 今日使う実機は **20 qubit**
+
+</div>
+
+---
+
+### 実は、誰でも借りられる
+
+<div class="two-column">
+<div class="column-left" style="flex: 2;">
+
+* **Amazon Braket** (AWS) で本物の量子コンピュータを使える
+* 例: **IQM Garnet** (超伝導、20 qubit)
+  * 実行 1 回 0.30 USD + 1 ショット 0.00145 USD
+  * 3000 ショットで **4.65 USD**
+
+</div>
+<div class="column-right">
+
+<img src="assets/images/iqm_quantum_computer_espoo.jpg" height="290px">
+
+<p class="caption" style="font-size: 0.5em; white-space: nowrap;">写真: Ragsxl, CC BY-SA 4.0,<br>via Wikimedia Commons</p>
+
+</div>
+</div>
+
+<div class="highlight-box">
+
+月 100 USD の予算で、噂のすごいやつを**自分の手で動かしてみたい**
+
+</div>
+
+---
+
+## じゃあ、お金を払えば
+## 巨大な数も分解できる？
+
+---
+
+### ところがどっこい
+
+## 15 = 3 × 5 すら
+## 解けませんでした
+
+<br>
+
+<div class="highlight-box">
+
+正確に言うと: 正しい答えに辿り着く割合で、**でたらめな数を返すだけの装置 (サイコロ) に負けた** (実機 69.5% 対 サイコロ 75%)
+
+</div>
+
+---
+
 ### 今日話すこと
 
 <div class="simple-box">
 
 * 素因数分解の量子アルゴリズム **Shor のアルゴリズム**を、
   **本物の量子コンピュータ**で動かしてみた話
-  * 「15 = 3 × 5」に使う**周期発見の回路**を組む
+  * 題材は 15 = 3 × 5 (2001 年の最初の実験以来の定番)
   * 超伝導量子コンピュータ **IQM Garnet** にクラウド経由で投げる
   * 結果を**事前に書いておいた予測**と比べる
 
@@ -74,9 +182,9 @@
 
 <div class="highlight-box">
 
+* **どう、どれだけうまくいかなかったか**を数字で確かめる
 * 新規性はない **「動かしてみた」系の自由研究**
 * **筆者は量子計算の専門家ではない**
-* 先に結論: **うまくいかなかった**
 
 </div>
 
@@ -87,10 +195,11 @@
 <div class="simple-box">
 
 * 量子誤り訂正、RSA 暗号がいつ破られるか
-* Shor のアルゴリズムの厳密な導出
+* 量子計算や Shor のアルゴリズムの厳密な説明
   * 位相推定や連分数展開の証明
 * クラウド側のインフラ設計
   * 権限の分離、課金のガードレール、Terraform
+  * ぶっちゃけるとここに一番手間と時間がかかってるのですが……
 
 </div>
 
@@ -104,28 +213,88 @@
 
 ---
 
-## Shor のアルゴリズム
-### 因数分解を「周期探し」に言い換える
+## 量子コンピュータは何が違う？
+### 超ざっくり版
 
 ---
 
-### 動機 — なぜやろうと思ったのか
+### 古典コンピュータのゲート
 
 <div class="simple-box">
 
-* 「量子コンピュータが 15 = 3 × 5 を因数分解した」は有名な話
-  * 最初の実験は 2001 年 (NMR 量子コンピュータ)
-* 今は**個人がクラウドで実機を使える** (Amazon Braket)
-  * 実行 1 回 0.30 USD + 測定 1 回 0.00145 USD (IQM Garnet)
-* 月 100 USD の予算で、**自分の手で確かめたい**
+* **ビット** (0 か 1) を**論理ゲート**で変換する
+  * 例: **NAND** は「両方 1 のときだけ 0」
+  * NAND を組み合わせれば、**どんな計算も作れる**
+
+<table>
+  <thead>
+    <tr><th>入力 A</th><th>入力 B</th><th>A NAND B</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>0</td><td>0</td><td>1</td></tr>
+    <tr><td>0</td><td>1</td><td>1</td></tr>
+    <tr><td>1</td><td>0</td><td>1</td></tr>
+    <tr><td>1</td><td>1</td><td>0</td></tr>
+  </tbody>
+</table>
 
 </div>
 
 <div class="highlight-box">
 
-ど真ん中のモチベーション: **教科書の回路は、今の実機でどこまで動くのか？**
+2 つ入れて 1 つ出す → 出力 1 から入力は**戻せない** (情報を捨てている)
 
 </div>
+
+---
+
+### 量子コンピュータのゲート
+
+<div class="simple-box">
+
+* **qubit** は 0 と 1 の**重ね合わせ** $\alpha \lvert 0 \rangle + \beta \lvert 1 \rangle$ を取れる
+  * $\alpha$ と $\beta$ は**振幅**。波の高さと位相のようなもの
+* **量子ゲート**は振幅を回す操作
+  * 例: **H ゲート**は $\lvert 0 \rangle$ を 0 と 1 が半々の重ね合わせにする
+
+<table>
+  <thead>
+    <tr><th></th><th>古典</th><th>量子</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>単位</td><td>ビット (0 か 1)</td><td>qubit (重ね合わせ)</td></tr>
+    <tr><td>ゲート</td><td>NAND など。入力を捨てる</td><td>H、CNOT など。逆回しできる</td></tr>
+    <tr><td>読み出し</td><td>何度読んでも同じ</td><td>測ると確率的に 0 か 1</td></tr>
+  </tbody>
+</table>
+
+</div>
+
+---
+
+### 重ね合わせと干渉
+
+<div class="simple-box">
+
+* $n$ 個の qubit で、$2^n$ 通りの入力の重ね合わせを**まとめて**扱える
+* ただし測ると**答えは 1 つだけ**
+  * 「全部同時に計算して全部読む」わけではない
+* 振幅は波のように**干渉**する
+  * 正解が強め合い、不正解が打ち消し合うように組む
+
+</div>
+
+<div class="highlight-box">
+
+* この解き方が効く問題は限られている
+* 一番有名なのが素因数分解の **Shor のアルゴリズム** (1994 年)
+
+</div>
+
+---
+
+## Shor のアルゴリズム
+### 因数分解を「周期探し」に言い換える
 
 ---
 
@@ -940,6 +1109,8 @@ $$ \lambda = \frac{m - f}{1 - f} $$
 * P. W. Shor, SIAM J. Comput. 26, 1484 (1997)
 * L. M. K. Vandersypen et al., Nature 414, 883 (2001)
 * J. A. Smolin, G. Smith, A. Vargo, "Oversimplifying quantum factoring", Nature 499, 163 (2013)
+* C. Gidney, arXiv:2505.15917 (2025)
+* NIST, FIPS 203 / 204 / 205 (2024)
 * Bagourd et al., arXiv:2512.15330
 * Amazon Braket Algorithm Library, "Shor's Algorithm" notebook
 
