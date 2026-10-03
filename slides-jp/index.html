@@ -298,51 +298,221 @@
 
 ---
 
-### 隠れた周期を探す
+### 7 を掛けて 15 で割り続ける
 
-<img src="assets/images/wiki/03_modular_period.png" height="400px">
+<div class="simple-box nowrap-table">
 
-<p class="caption">$7^x$ を 15 で割った余りは 1 → 7 → 4 → 13 → 1 … と <strong>周期 $r = 4$</strong> で繰り返す</p>
+* 15 と共通の約数を持たない数を選ぶ (今回は **7**)
+* $7^x$ を 15 で割った余り ($7^x \bmod 15$) を計算する
+  * 次の余りは「前の余り × 7」の余り ($4 \times 7 = 28$ → 13)
 
----
-
-### 周期が分かれば因数が分かる
-
-<div class="simple-box">
-
-* $7^4 - 1 = (7^2 - 1)(7^2 + 1)$ は 15 の倍数
-* $7^2$ を 15 で割った余りは 4 なので
-
-$$ \gcd(4 - 1,\ 15) = 3, \qquad \gcd(4 + 1,\ 15) = 5 $$
+<table>
+  <thead>
+    <tr><th>$x$</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>$7^x$</td><td>1</td><td>7</td><td>49</td><td>343</td><td>2401</td><td>16807</td><td>117649</td></tr>
+    <tr><td>15 で割った余り</td><td><strong>1</strong></td><td>7</td><td>4</td><td>13</td><td><strong>1</strong></td><td>7</td><td>4</td></tr>
+  </tbody>
+</table>
 
 </div>
 
 <div class="highlight-box">
 
-* 周期さえ分かれば、あとは**最大公約数を取るだけ**
-* 大きな数では、**周期を見つけるのが難しい** (古典計算機では)
+余りは 1 → 7 → 4 → 13 → 1 → … と **4 つごとに繰り返す**。この長さを**周期** $r$ と呼ぶ ($r = 4$)
 
 </div>
 
 ---
 
-### 量子が担当するのは「周期探し」だけ
+### 隠れた周期を探す
 
-<img src="assets/images/wiki/01_algorithm_overview.png" width="100%">
+<img src="assets/images/wiki/03_modular_period.png" height="400px">
 
-<p class="caption">黄色が古典計算、青が量子計算。量子コンピュータが直接「3 と 5」を出すわけではない</p>
+<div class="highlight-box">
+
+因数分解の問題は、この**周期を見つける問題**に言い換えられる (次のスライドから)
+
+</div>
 
 ---
 
-### 回路は 2 つのレジスタでできている
+### 周期から「掛け算の形」を作る
+
+<div class="simple-box">
+
+* 周期が 4 → $7^4$ を 15 で割った余りは 1
+* つまり $7^4 - 1 = 2400$ は **15 で割り切れる** ($2400 = 15 \times 160$)
+* 中学で習う因数分解 $A^2 - 1 = (A - 1)(A + 1)$ を、$A = 7^2 = 49$ で使う
+
+$$ 7^4 - 1 = (7^2 - 1)(7^2 + 1) = 48 \times 50 $$
+
+</div>
+
+<div class="highlight-box">
+
+15 の倍数を、**2 つの数の掛け算**に分けられた
+
+</div>
+
+---
+
+### 48 も 50 も 15 の倍数ではない
+
+<div class="simple-box">
+
+* $48 \times 50$ は 15 の倍数。でも 48 も 50 も**単独では違う**
+* → 15 の素因数が 48 と 50 に**分かれて**いる
+  * 実際 $48 = 3 \times 16$、$50 = 5 \times 10$
+* **最大公約数** (gcd、両方を割り切る最大の数) で取り出す
+
+$$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
+
+</div>
+
+<div class="highlight-box">
+
+15 の素因数を知らなくても、**最大公約数を計算するだけ**で取り出せる
+
+</div>
+
+---
+
+### 最大公約数は一瞬で計算できる
+
+<div class="simple-box">
+
+* **ユークリッドの互除法**: 割り算の余りを取り続けるだけ。600 桁でも一瞬: $O(\log \min(a, b))$
+  * $50 = 3 \times 15 + 5$、$15 = 3 \times 5$ → gcd は **5**
+  * $48 = 3 \times 15 + 3$、$15 = 5 \times 3$ → gcd は **3**
+* 周期が奇数のときや片方が 15 の倍数のときは失敗
+  * → 7 以外の数で**やり直す** (適当に選べば半分以上の確率で成功)
+
+</div>
+
+<div class="highlight-box">
+
+* 難しいのは**周期を見つける**ところ
+  * (理想的な)量子コンピュータはこれが得意
+
+</div>
+
+---
+
+### 量子の担当は「周期探し」だけ
+
+<img src="assets/images/wiki/01_algorithm_overview.png" width="78%">
+
+<p class="caption">黄: 古典、青: 量子。量子が直接「3 と 5」を出すわけではない</p>
+
+<div class="simple-box nowrap-table">
+
+<table>
+  <thead>
+    <tr><th>ステップ</th><th>やること</th><th>量子だと何がうれしいか</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>2 重ね合わせ</td><td>count に H</td><td>256 通りを 8 ゲートで</td></tr>
+    <tr><td>3 べき乗の余り</td><td>work に $7^x \bmod 15$</td><td>全部の $x$ をまとめて</td></tr>
+    <tr><td>4 逆 QFT</td><td>縞 → ピーク</td><td>干渉で<strong>周期だけ</strong>読む</td></tr>
+  </tbody>
+</table>
+
+</div>
+
+---
+
+### 回路の 2 つのレジスタ
 
 <img src="assets/images/wiki/02_quantum_circuit.png" height="240px">
 
 <div class="simple-box">
 
-* **count**: 指数 $x$ を重ね合わせで全部持つ
-* **work**: $7^x$ を 15 で割った余りを書き込む
-* 最後に count を**逆量子フーリエ変換**して測る
+* **count** (8 qubit): 指数 $x$ を入れる。0〜255 を表せる
+* **work** (4 qubit): $7^x \bmod 15$ を入れる。最初は 1
+* 左から: H (ステップ 2) → べき乗の余り (ステップ 3) → 逆 QFT (ステップ 4) → count を測る
+
+</div>
+
+---
+
+### ステップ 2: 重ね合わせ
+
+<div class="simple-box">
+
+* count の 8 qubit に H ゲートを 1 個ずつ → 各 qubit が 0 と 1 の半々に
+* 全体では $x = 0, 1, \dots, 255$ の **256 通りが同じ重みで重なる**
+
+$$ \frac{1}{16} \sum_{x=0}^{255} \lvert x \rangle \lvert 1 \rangle $$
+
+</div>
+
+<div class="highlight-box">
+
+* 古典: 256 通り試すには 256 回か 256 台
+* 量子: **ゲート 8 個**で 256 通り。1 qubit 足すと 2 倍
+
+</div>
+
+---
+
+### ステップ 3: べき乗の余り
+
+<div class="simple-box">
+
+* $7^x$ は 2 進数で $7^1, 7^2, 7^4, \dots, 7^{128}$ の積に分かれる
+  * 例: $x = 5 = 4 + 1$ なら $7^5 = 7^4 \times 7^1$
+* count の各 qubit を**スイッチ**に、1 のときだけ work に掛ける (8 回、古典と同じ手順)
+
+$$ \frac{1}{16} \sum_{x=0}^{255} \lvert x \rangle \lvert 7^x \bmod 15 \rangle $$
+
+</div>
+
+<div class="highlight-box">
+
+違いは $x$ が**重ね合わせのまま**通り、**256 通りすべて**の答えが入ること
+
+</div>
+
+---
+
+### ステップ 3 のあと: 縞模様
+
+<div class="simple-box">
+
+* work に入る値は 1, 7, 4, 13 の **4 種類だけ**
+* work = 1 になる $x$ は 0, 4, 8, 12, … と **4 つおき**
+  * work = 7 なら 1, 5, 9, …、work = 4 なら 2, 6, 10, …
+* count と work が**エンタングル**して、count 側に**周期 4 の縞模様**ができる
+
+</div>
+
+<div class="highlight-box">
+
+* ただしここで測っても、($x$, 余り) の組が**ランダムに 1 つ**出るだけ
+* $x$ を 1 つ選んで古典で計算したのと変わらない → 縞の**間隔**を読み出すのが次のステップ
+
+</div>
+
+---
+
+### ステップ 4: 逆フーリエ変換
+
+<div class="simple-box">
+
+* count に**逆量子フーリエ変換** (逆 QFT) を掛ける
+  * 縞の「間隔」を、ピークの「位置」に変える変換
+* 256 通りの $x$ の振幅が**干渉**する
+  * 周期 4 と合う 0, 64, 128, 192 で**強め合う**
+  * それ以外では**打ち消し合って**確率が 0 になる
+* 測ると、4 本のピークのどれかが出る (測った値を $y$ と書く)
+
+</div>
+
+<div class="highlight-box">
+
+$y = 64$ が出たら $64 / 256 = 1/4$ → 分母の **4 が周期**
 
 </div>
 
@@ -352,7 +522,7 @@ $$ \gcd(4 - 1,\ 15) = 3, \qquad \gcd(4 + 1,\ 15) = 5 $$
 
 <img src="assets/images/wiki/04_quantum_state_evolution.png" height="430px">
 
-<p class="caption">横軸 count、縦軸 work の確率。B で周期 4 の縞ができ、C の逆フーリエ変換で 4 本のピークに集まる</p>
+<p class="caption">横軸 count、縦軸 work の確率。A: ステップ 2 (work = 1 の行だけ) / B: ステップ 3 (周期 4 の縞) / C: ステップ 4 (4 本のピーク)</p>
 
 ---
 
@@ -364,7 +534,33 @@ $$ \gcd(4 - 1,\ 15) = 3, \qquad \gcd(4 + 1,\ 15) = 5 $$
 
 * 周期的な縞をフーリエ変換するとピークが立つ
   * **回折格子や結晶の X 線回折と同じ構造**
-* 測定値が 64 なら $64/256 = 1/4$ → 分母の **4 が周期**
+* 青は理想の確率、橙はシミュレータで 1000 回測った頻度
+
+</div>
+
+---
+
+### なぜ量子だと速いのか
+
+<div class="simple-box">
+
+<table>
+  <thead>
+    <tr><th></th><th>古典</th><th>量子 (Shor)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>周期の探し方</td><td>$7, 7^2, 7^3, \dots$ と順に計算して、1 に戻るまで待つ</td><td>全部の $x$ を重ね合わせ、フーリエ変換で周期だけ読む</td></tr>
+    <tr><td>手間</td><td>周期の長さ程度。617 桁の数では、周期も天文学的な長さになりうる</td><td>回路の大きさは桁数の 3 乗程度</td></tr>
+  </tbody>
+</table>
+
+</div>
+
+<div class="highlight-box">
+
+* 回折格子の間隔は、スリットを 1 本ずつ測らなくても**スクリーンの縞**から分かる
+* 光子 1 個は 1 点に当たるだけ。でも明るい縞に偏るので、**数発で間隔が分かる**
+* 量子コンピュータの測定 1 回 = 光子 1 個
 
 </div>
 
