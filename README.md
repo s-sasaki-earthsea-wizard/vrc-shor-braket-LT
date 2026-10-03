@@ -47,6 +47,8 @@ VRChat 物理学集会 LT 用スライド資料 — **Shor のアルゴリズム
     ├── index.html
     └── assets/images/
         ├── garnet_*.svg   # make_figures.py が生成
+        ├── title.png      # タイトルのイラスト（スクリプトの生成物ではない）
+        ├── iqm_quantum_computer_espoo.jpg  # Wikimedia Commons の写真（Ragsxl、CC BY-SA 4.0）
         └── wiki/          # 元プロジェクトの Wiki の図
 ```
 
@@ -74,7 +76,8 @@ npm start
 python scripts/make_figures.py
 ```
 
-`data/garnet_2026-09-23.json` から `slides-jp/assets/images/garnet_*.svg` と `title.png` を生成する。
+`data/garnet_2026-09-23.json` から `slides-jp/assets/images/garnet_*.svg` を生成する。
+タイトルスライドの `title.png` はイラストで、このスクリプトでは描かない。
 `data/` を作り直すには shor-braket の実行結果（`runs/raw`、バージョン管理の対象外）が手元に必要。
 
 ```bash

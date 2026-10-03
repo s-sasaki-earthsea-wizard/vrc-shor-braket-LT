@@ -105,14 +105,16 @@ VRChat 物理学集会 LT「【悲報】量子コンピュータ、九九が解�
 | 図 | 作り方 |
 |---|---|
 | `slides-jp/assets/images/wiki/*.png` | 元プロジェクトの Wiki の図をコピー（ラベルは英語） |
-| `garnet_t2_joint.svg`、`title.png` | 理想 / エミュレータ / 実機の同時分布（$t = 2$） |
+| `garnet_t2_joint.svg` | 理想 / エミュレータ / 実機の同時分布（$t = 2$） |
+| `garnet_t2_stripes.svg` | 理想と実機の同時分布を上下に並べた図（$t = 2$）。旧タイトル画像で、今はスライドで使っていない |
 | `garnet_t2_work_marginal.svg` | work レジスタの周辺分布（$t = 2$） |
 | `garnet_t2_lambda_models.svg` | λ のモデル比較（$t = 2$） |
 | `garnet_t3_y_marginal.svg` | count レジスタの周辺分布（$t = 3$） |
 | `garnet_t3_visibility.svg` | 可視度のモデル比較（$t = 3$） |
 | `iqm_quantum_computer_espoo.jpg` | 6 枚目の写真。Wikimedia Commons の [IQM Quantum Computer Espoo Finland.jpg](https://commons.wikimedia.org/wiki/File:IQM_Quantum_Computer_Espoo_Finland.jpg)（Ragsxl 撮影、CC BY-SA 4.0）の幅 960 px 版。クレジットはスライドの caption に書いている |
 
-`garnet_*.svg` と `title.png` は `python scripts/make_figures.py` で描き直せる。
+`garnet_*.svg` は `python scripts/make_figures.py` で描き直せる。タイトルスライドの `title.png` はイラストで、
+スクリプトの生成物ではない。
 
 ## 5. 表現の約束
 

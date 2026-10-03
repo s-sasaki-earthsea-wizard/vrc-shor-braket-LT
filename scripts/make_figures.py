@@ -88,12 +88,10 @@ def configure_style() -> None:
     )
 
 
-def save(figure: Figure, stem: str, png: bool = False) -> None:
-    """Write one figure as SVG, and as PNG when asked."""
+def save(figure: Figure, stem: str) -> None:
+    """Write one figure as SVG."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     figure.savefig(OUTPUT_DIR / f"{stem}.svg", bbox_inches="tight")
-    if png:
-        figure.savefig(OUTPUT_DIR / f"{stem}.png", dpi=200, bbox_inches="tight")
     plt.close(figure)
 
 
@@ -157,8 +155,8 @@ def plot_joint_t2(data: dict[str, Any]) -> None:
     save(figure, "garnet_t2_joint")
 
 
-def plot_title_image(data: dict[str, Any]) -> None:
-    """A title visual: the ideal stripes above what the hardware returned."""
+def plot_stripes_t2(data: dict[str, Any]) -> None:
+    """The ideal stripes above what the hardware returned, for t = 2."""
     run = data["runs"]["t2"]
     vmax = max(run["ideal"])
     figure, axes = plt.subplots(2, 1, figsize=(10, 4.6), sharex=True)
@@ -170,7 +168,7 @@ def plot_title_image(data: dict[str, Any]) -> None:
         ax.set_ylabel(title, rotation=0, ha="right", va="center", color=TEXT_PRIMARY)
     axes[-1].set_xlabel("work register value")
     figure.subplots_adjust(hspace=0.12)
-    save(figure, "title", png=True)
+    save(figure, "garnet_t2_stripes")
 
 
 def plot_work_marginal_t2(data: dict[str, Any]) -> None:
@@ -331,7 +329,7 @@ def main() -> None:
     with DATA_PATH.open(encoding="utf-8") as handle:
         data = json.load(handle)
     configure_style()
-    plot_title_image(data)
+    plot_stripes_t2(data)
     plot_joint_t2(data)
     plot_work_marginal_t2(data)
     plot_lambda_models_t2(data)
