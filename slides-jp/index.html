@@ -436,8 +436,8 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
     <tr><th>ステップ</th><th>やること</th><th>量子だと何がうれしいか</th></tr>
   </thead>
   <tbody>
-    <tr><td>2: 重ね合わせ</td><td>count に H</td><td>256 通りを 8 ゲートで</td></tr>
-    <tr><td>3: べき乗の余り</td><td>work に $7^x \bmod 15$</td><td>全部の $x$ をまとめて</td></tr>
+    <tr><td>2: 重ね合わせ</td><td>$x$ = 0〜255 を重ねる</td><td>256 通りを 8 ゲートで</td></tr>
+    <tr><td>3: べき乗の余り</td><td>余り $7^x \bmod 15$ を書く</td><td>全部の $x$ をまとめて</td></tr>
     <tr><td>4: 逆 QFT</td><td>縞 → ピーク</td><td>干渉で<strong>周期だけ</strong>読む</td></tr>
   </tbody>
 </table>
@@ -446,15 +446,36 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 
 ---
 
-### 回路の 2 つのレジスタ
+### 指数を入れる箱
 
-<img src="assets/images/wiki/02_quantum_circuit.png" height="240px">
+<div class="figure-crop" style="aspect-ratio: 1984 / 432;"><img src="assets/images/wiki/02_quantum_circuit.png" style="margin-top: -7.06%;"></div>
 
 <div class="simple-box">
 
-* **count** (8 qubit): 指数 $x$ を入れる。0〜255 を表せる
-* **work** (4 qubit): $7^x \bmod 15$ を入れる。最初は 1
-* 左から: H (ステップ 2) → べき乗の余り (ステップ 3) → 逆 QFT (ステップ 4) → count を測る
+* **count** (8 qubit、図の上の線): 指数 $x$ を入れる
+  * 8 qubit で 0〜255 の 256 通り
+* H → 掛け算のスイッチ → 逆 QFT → **ここを測る**
+* count / work は実装での呼び名 (教科書では第 1 / 第 2 レジスタ)
+
+</div>
+
+---
+
+### 余りを書く箱
+
+<div class="figure-crop" style="aspect-ratio: 1984 / 432;"><img src="assets/images/wiki/02_quantum_circuit.png" style="margin-top: -7.06%;"></div>
+
+<div class="simple-box">
+
+* **work** (4 qubit、図の下の線): 余り $7^x \bmod 15$ を書く。最初は 1
+* 余りで $x$ を消すと逆回しできない → **別の箱**へ
+* 2 つの箱の状態は (count, work) の**表**。各マスに**振幅**が乗り、測ると **1 マス**だけ出る
+
+</div>
+
+<div class="highlight-box">
+
+量子の仕事: **どのマスを引いても役立つ表**に整える
 
 </div>
 
@@ -462,19 +483,22 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 
 ### ステップ 2: 重ね合わせ
 
+<div class="figure-crop" style="aspect-ratio: 2088 / 311;"><img src="assets/images/wiki/04_quantum_state_evolution.png" style="margin-top: -6.42%;"></div>
+
+<p class="caption">横: count の値 $x$ (0〜255)、縦: work の値 (使わない 12 行は省略)。明るいほど確率が高い</p>
+
 <div class="simple-box">
 
-* count の 8 qubit に H ゲートを 1 個ずつ → 各 qubit が 0 と 1 の半々に
-* 全体では $x = 0, 1, \dots, 255$ の **256 通りが同じ重みで重なる**
-
-$$ \frac{1}{16} \sum_{x=0}^{255} \lvert x \rangle \lvert 1 \rangle $$
+* count の 8 qubit に H ゲートを 1 個ずつ
+* work = 1 の行の **256 マスに同じ振幅** (確率 1/256)
+  * いま測ると 0〜255 のどれかが均等に出る
 
 </div>
 
 <div class="highlight-box">
 
-* 古典: 256 通り試すには 256 回か 256 台
-* 量子: **ゲート 8 個**で 256 通り。1 qubit 足すと 2 倍
+* 古典: 256 通り並べるには 256 回か 256 台
+* 量子: **ゲート 8 個**で 256 マス。1 qubit 足すと 2 倍
 
 </div>
 
@@ -482,39 +506,19 @@ $$ \frac{1}{16} \sum_{x=0}^{255} \lvert x \rangle \lvert 1 \rangle $$
 
 ### ステップ 3: べき乗の余り
 
+<div class="figure-crop" style="aspect-ratio: 2088 / 310; width: 90%; margin: 10px auto;"><img src="assets/images/wiki/04_quantum_state_evolution.png" style="margin-top: -28.35%;"></div>
+
 <div class="simple-box">
 
-* $7^x$ は $7^1, 7^2, 7^4, \dots, 7^{128}$ の積に分かれる
-  * 例: $x = 5 = 4 + 1$ なら $7^5 = 7^4 \times 7^1$
-* count の各 qubit を**スイッチ**に、1 のときだけ work に掛ける (8 回、古典と同じ手順)
-
-$$ \frac{1}{16} \sum_{x=0}^{255} \lvert x \rangle \lvert 7^x \bmod 15 \rangle $$
+* count の各 qubit を**スイッチ**に、work へ $7, 7^2, 7^4, \dots$ を掛ける
+* 各マスが余りの行へ → **ずれた 4 つおきの縞**
+* 2 つの箱の状態を**別々に言えない** → **エンタングルメント**
 
 </div>
 
 <div class="highlight-box">
 
-違いは $x$ が**重ね合わせのまま**通り、**256 通りすべて**の答えが入ること
-
-</div>
-
----
-
-### ステップ 3 のあと: 縞模様
-
-<div class="simple-box">
-
-* work に入る値は 1, 7, 4, 13 の **4 種類だけ**
-* work = 1 になる $x$ は 0, 4, 8, 12, … と **4 つおき**
-  * work = 7 なら 1, 5, 9, …、work = 4 なら 2, 6, 10, …
-* count と work が**エンタングル**して、count 側に**周期 4 の縞模様**ができる
-
-</div>
-
-<div class="highlight-box">
-
-* ただしここで測っても、($x$, 余り) の組が**ランダムに 1 つ**出るだけ
-* $x$ を 1 つ選んで古典で計算したのと変わらない → 縞の**間隔**を読み出すのが次のステップ
+いま測っても ($x$, 余り) の組が 1 つ出るだけ。**古典で計算したのと同じ**
 
 </div>
 
@@ -522,42 +526,39 @@ $$ \frac{1}{16} \sum_{x=0}^{255} \lvert x \rangle \lvert 7^x \bmod 15 \rangle $$
 
 ### ステップ 4: 逆フーリエ変換
 
+<div class="figure-crop" style="aspect-ratio: 2088 / 376; width: 90%; margin: 10px auto;"><img src="assets/images/wiki/04_quantum_state_evolution.png" style="margin-top: -50.24%;"></div>
+
 <div class="simple-box">
 
-* count に**逆量子フーリエ変換** (逆 QFT) を掛ける
-  * 縞の「間隔」を、ピークの「位置」に変える変換
-* 256 通りの $x$ の振幅が**干渉**する
-  * 周期 4 と合う 0, 64, 128, 192 で**強め合う**
-  * それ以外では**打ち消し合って**確率が 0 になる
-* 測ると、4 本のピークのどれかが出る (測った値を $y$ と書く)
+* count に**逆量子フーリエ変換** (逆 QFT): 縞の「間隔」をピークの「位置」に変える
+* 振幅が**干渉**: 0, 64, 128, 192 で強め合い、ほかは打ち消し合う
+* 縞の**ずれ**は位相に逃げる → **どの行も同じ 4 列**
 
 </div>
 
 <div class="highlight-box">
 
-$y = 64$ が出たら $64 / 256 = 1/4$ → 分母の **4 が周期**
+測った値 $y = 64$ → $64 / 256 = 1/4$ → 分母の **4 が周期**
 
 </div>
 
 ---
 
-### 量子状態はこう変わる
+### 1 ショット = 光子 1 個
 
-<img src="assets/images/wiki/04_quantum_state_evolution.png" height="430px">
-
-<p class="caption">横軸 count、縦軸 work の確率。A: ステップ 2 (work = 1 の行だけ) / B: ステップ 3 (周期 4 の縞) / C: ステップ 4 (4 本のピーク)</p>
-
----
-
-### 周期構造のフーリエ変換 = ピーク
-
-<img src="assets/images/wiki/05_measurement_peaks.png" height="250px">
+<img src="assets/images/wiki/05_measurement_peaks.png" height="170px">
 
 <div class="simple-box">
 
-* 周期的な縞をフーリエ変換するとピークが立つ
-  * **回折格子や結晶の X 線回折と同じ構造**
-* 青は理想の確率、橙はシミュレータで 1000 回測った頻度
+* 1 ショットで出るのは 4 本のどれか **1 つ**
+* 周期の候補は古典で検算できるので、Shor 自体は**数ショット**で足りる
+* でも**分布の形**を見るには何千ショットも要る
+
+</div>
+
+<div class="highlight-box">
+
+周期構造のフーリエ変換は**回折格子と同じ**。光子 1 個は 1 点に当たるだけで、重ねると縞が見える
 
 </div>
 
@@ -581,9 +582,8 @@ $y = 64$ が出たら $64 / 256 = 1/4$ → 分母の **4 が周期**
 
 <div class="highlight-box">
 
-* 回折格子の間隔は、スリットを 1 本ずつ測らなくても**スクリーンの縞**から分かる
-* 光子 1 個は 1 点に当たるだけ。でも明るい縞に偏るので、**数発で間隔が分かる**
-* 量子コンピュータの測定 1 回 = 光子 1 個
+* 表のマス数は qubit 1 個ごとに **2 倍**。12 qubit なら 4096 マスで、ノート PC でも計算できる
+* 617 桁の数では、表は古典のメモリに**載らない**。qubit は桁数に比例する数で済む
 
 </div>
 

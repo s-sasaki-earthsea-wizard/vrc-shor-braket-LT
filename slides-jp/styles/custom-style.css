@@ -312,3 +312,27 @@
 .reveal .results-box + .highlight-box {
     margin-top: 16px;
 }
+
+/*********************************************
+ * Show one panel of a multi-panel figure
+ *
+ * Usage: set the panel height with aspect-ratio on the wrapper and the
+ * panel top with a negative percentage margin-top on the image. Both are
+ * fractions of the source image width, so the crop scales with the slide.
+ *********************************************/
+.reveal .slides section .figure-crop {
+    overflow: hidden;
+    width: 100%;
+    margin: 10px 0;
+}
+
+.reveal .slides section .figure-crop img {
+    display: block;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+    background: none;
+}
