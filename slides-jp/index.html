@@ -955,11 +955,19 @@ $$ p_{\mathrm{device}} \approx \lambda \cdot p_{\mathrm{ideal}} + (1 - \lambda) 
 
 ### この数字は何を測っていたのか
 
-<div class="simple-box">
+<div class="simple-box nowrap-table">
 
-$$ \frac{1}{2} \sum_{x=0}^{3} \lvert x \rangle \lvert 7^x \bmod 15 \rangle $$
+<table>
+  <thead>
+    <tr><th>count の値 $x$</th><th>0</th><th>1</th><th>2</th><th>3</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>掛け算のあとの work</td><td>1</td><td>7</td><td>4</td><td>13</td></tr>
+  </tbody>
+</table>
 
-* 掛け算のあと、work の値は 1, 7, 4, 13 と**全部違う**
+* count 2 qubit では、work の値が**全部違う**
+* work が $x$ を記録している = **どのスリットを通ったか分かる**二重スリット
 * 理想の分布は、**count を途中で測った場合とまったく同じ**
 
 </div>
