@@ -1,5 +1,5 @@
-# water shortage with AI
+# 発表脚本 (TBA)
 
-## YouTube動画脚本
+VRChat 物理学集会の本番 / YouTube 公開用の読み上げ脚本をここに書く。
 
-TBA
+構成案は `../docs/talk_outline.md` を参照。
