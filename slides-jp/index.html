@@ -624,39 +624,6 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 
 ---
 
-### 落とし穴②: サイコロでも当たる
-
-<div class="simple-box">
-
-* 測定値から周期の候補を作り、**古典で検算**する
-* でたらめな測定値でも、**1/4 か 3/4 の近く**に落ちれば周期 4 が出る
-
-</div>
-
-<div class="results-box">
-
-<table>
-  <thead>
-    <tr><th>乱数しか返さない壊れた装置が</th><th>1 回で周期 4 に辿り着く割合</th></tr>
-  </thead>
-  <tbody>
-    <tr><td>前半の例 (count 8 qubit)</td><td>約 12% (当たりの幅が全体の 1/8)</td></tr>
-    <tr><td><strong>今回 (count 2 qubit)</strong></td><td><strong>75%</strong> (0, 1/4, 1/2, 3/4 のうち 0 以外)</td></tr>
-  </tbody>
-</table>
-
-</div>
-
-<p class="caption">1/2 は周期 2 の候補 → 検算で落ちるが、2 倍の 4 は通る</p>
-
-<div class="highlight-box">
-
-**「因数が出た」を成功の条件にしてはいけない**
-
-</div>
-
----
-
 ### 縮めた回路の理想と予測
 
 <img src="assets/images/garnet_t2_ideal.svg" height="230px" style="box-shadow: none;border:none;">
@@ -790,7 +757,40 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 
 ---
 
-### この数字は何を測っていたのか
+### サイコロでも当たる
+
+<div class="simple-box">
+
+* 測定値から周期の候補を作り、**古典で検算**する
+* でたらめな測定値でも、**1/4 か 3/4 の近く**に落ちれば周期 4 が出る
+
+</div>
+
+<div class="results-box">
+
+<table>
+  <thead>
+    <tr><th>乱数しか返さない壊れた装置が</th><th>1 回で周期 4 に辿り着く割合</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>前半の例 (count 8 qubit)</td><td>約 12% (当たりの幅が全体の 1/8)</td></tr>
+    <tr><td><strong>今回 (count 2 qubit)</strong></td><td><strong>75%</strong> (0, 1/4, 1/2, 3/4 のうち 0 以外)</td></tr>
+  </tbody>
+</table>
+
+</div>
+
+<p class="caption">1/2 は周期 2 の候補 → 検算で落ちるが、2 倍の 4 は通る</p>
+
+<div class="highlight-box">
+
+**「因数が出た」を成功の条件にしてはいけない**
+
+</div>
+
+---
+
+### 信号残存率は何を測っていたのか
 
 <div class="simple-box nowrap-table">
 
