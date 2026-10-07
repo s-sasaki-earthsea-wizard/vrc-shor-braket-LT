@@ -155,6 +155,19 @@ def plot_joint_t2(data: dict[str, Any]) -> None:
     save(figure, "garnet_t2_joint")
 
 
+def plot_ideal_t2(data: dict[str, Any]) -> None:
+    """The ideal joint distribution for t = 2 alone, shown before the hardware result."""
+    run = data["runs"]["t2"]
+    figure, ax = plt.subplots(figsize=(12, 2.6))
+    draw_heatmap(
+        ax, joint_matrix(run["ideal"], data["work_values"]), max(run["ideal"]), data["orbit"]
+    )
+    ax.set_title("Ideal: 16 equal cells on the orbit {1, 4, 7, 13}")
+    ax.set_ylabel("count y")
+    ax.set_xlabel("work register value")
+    save(figure, "garnet_t2_ideal")
+
+
 def plot_stripes_t2(data: dict[str, Any]) -> None:
     """The ideal stripes above what the hardware returned, for t = 2."""
     run = data["runs"]["t2"]
@@ -329,6 +342,7 @@ def main() -> None:
     with DATA_PATH.open(encoding="utf-8") as handle:
         data = json.load(handle)
     configure_style()
+    plot_ideal_t2(data)
     plot_stripes_t2(data)
     plot_joint_t2(data)
     plot_work_marginal_t2(data)
