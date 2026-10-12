@@ -699,22 +699,61 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 
 <table>
   <thead>
-    <tr><th>指標</th><th>実機</th><th>予測</th></tr>
+    <tr><th>指標</th><th>理想</th><th>予測</th><th>実機</th><th>乱数</th></tr>
   </thead>
   <tbody>
-    <tr><td><strong>信号残存率 $\lambda$</strong></td><td><strong>0.272 ± 0.012</strong></td><td>0.564</td></tr>
-    <tr><td>work が正しい 4 値に乗った割合</td><td>0.454</td><td>0.673</td></tr>
-    <tr><td>正しい周期に辿り着く割合</td><td>0.695</td><td>0.745</td></tr>
-    <tr><td>(参考) 乱数しか返さない装置の同じ割合</td><td colspan="2">0.750</td></tr>
+    <tr><td>work が正しい 4 値に乗った割合</td><td>1</td><td>0.673</td><td>0.454</td><td>0.25</td></tr>
+    <tr><td><strong>信号残存率 $\lambda$</strong></td><td>1</td><td>0.564</td><td><strong>0.272 ± 0.012</strong></td><td>0</td></tr>
   </tbody>
 </table>
+
+</div>
+
+<div class="simple-box">
+
+* 0.454 は前のスライドの橙 4 本の合計
+* **乱数** (64 マスに均等) でも **1/4** は乗る
+* それを差し引き、乱数 0、理想 1 に揃えたのが $\lambda$
 
 </div>
 
 <div class="highlight-box">
 
 * 信号は**ある** (ゼロから 22σ)。でも予測の**半分以下** (予測から 24σ)
-* 「周期に辿り着く割合」は**乱数以下**だった
+
+</div>
+
+---
+
+### 周期で採点すると
+
+<div class="simple-box">
+
+* Shor の最終的な答えは**周期**
+* 1 ショットずつ、**周期 4** に辿り着けたかを採点
+
+</div>
+
+<div class="results-box">
+
+<table>
+  <thead>
+    <tr><th>採点</th><th>予測</th><th>実機</th><th>乱数</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>信号残存率 $\lambda$</td><td>0.564</td><td>0.272</td><td>0</td></tr>
+    <tr><td><strong>正しい周期に辿り着く割合</strong></td><td>0.745</td><td><strong>0.695</strong></td><td><strong>0.750</strong></td></tr>
+  </tbody>
+</table>
+
+</div>
+
+<p class="caption">冒頭の「サイコロに負けた」はこの採点</p>
+
+<div class="highlight-box">
+
+* 乱数は $\lambda = 0$ でも **4 回に 3 回**当たる (後述)
+* 実機も、**予測ですら**乱数に届かない
 
 </div>
 
