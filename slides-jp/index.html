@@ -625,7 +625,7 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 
 ---
 
-### 縮めた回路の理想と予測
+### 縮めた回路の理想
 
 <img src="assets/images/garnet_t2_ideal.svg" height="230px" style="box-shadow: none;border:none;">
 
@@ -633,12 +633,21 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 
 * 理想: work が 1, 4, 7, 13 の **16 マスだけ**
 * **信号残存率 $\lambda$**: 縞の残り具合 (1 = 理想、0 = 乱数)
+* 理想的 ($\lambda=1$) にはこの16マスにしか出ない
 
 </div>
 
+---
+
+### 縮めた回路の予測
+
+<img src="assets/images/garnet_t2_emulator.svg" height="230px" style="box-shadow: none;border:none;">
+
 <div class="highlight-box">
 
-投げる前に、エミュレータで **$\lambda = 0.56$** と予測
+* エミュレータが回路の構成から **$\lambda = 0.56$** と予測
+* ノイズは混ざるが縞模様は確かに見える
+* いけるか? (いけない)
 
 </div>
 
@@ -650,6 +659,19 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 ---
 
 ### 結果: 縞は見えるが、薄い
+
+<img src="assets/images/garnet_t2_hardware.svg" height="230px" style="box-shadow: none;border:none;">
+
+<div class="highlight-box">
+
+* 目を細めてぼやかせれば、かろうじて見えなくもないような気がしなくもないレベル
+  * つまり見えない
+
+</div>
+
+---
+
+### 理想、予測、実測の比較
 
 <img src="assets/images/garnet_t2_joint.svg" height="450px" style="box-shadow: none;border:none;">
 
