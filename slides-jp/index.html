@@ -679,6 +679,21 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 
 ---
 
+### ピークの位置は合っている
+
+<img src="assets/images/garnet_t2_work_marginal.svg" height="280px" style="box-shadow: none;border:none;">
+
+<div class="highlight-box">
+
+* 上位 4 値は 1, 4, 7, 13 — **理想の 4 値そのもの**
+* 外れた値の大半は、正解から **1 ビット違い**
+  * 例: 0001 と 1 ビット違いの 0000, 0011, 0101, 1001 は、どの正解からも遠い値の**約 2 倍**
+* 解析ミスではない。では、**どれだけ**理想に近い?
+
+</div>
+
+---
+
 ### 数字で見ると
 
 <div class="results-box">
@@ -701,20 +716,6 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 
 * 信号は**ある** (ゼロから 22σ)。でも予測の**半分以下** (予測から 24σ)
 * 「周期に辿り着く割合」は**乱数以下**だった
-
-</div>
-
----
-
-### まず解析ミスを疑う
-
-<img src="assets/images/garnet_t2_work_marginal.svg" height="280px" style="box-shadow: none;border:none;">
-
-<div class="highlight-box">
-
-* 上位 4 値は 1, 4, 7, 13 — **理想の 4 値そのもの**
-* 外れた値の大半は、正しい値から **1 ビットだけ反転**
-* 配線や解析の取り違えではない。**本当に信号が弱い**
 
 </div>
 
