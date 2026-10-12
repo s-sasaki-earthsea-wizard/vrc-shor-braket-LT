@@ -307,9 +307,11 @@
     white-space: nowrap;
 }
 
-/* Keep a gap when a highlight follows another box without a <br>. */
+/* Keep a gap when a box follows another box without a <br>. */
 .reveal .simple-box + .highlight-box,
-.reveal .results-box + .highlight-box {
+.reveal .results-box + .highlight-box,
+.reveal .simple-box + .results-box,
+.reveal .results-box + .simple-box {
     margin-top: 16px;
 }
 
