@@ -155,17 +155,47 @@ def plot_joint_t2(data: dict[str, Any]) -> None:
     save(figure, "garnet_t2_joint")
 
 
-def plot_ideal_t2(data: dict[str, Any]) -> None:
-    """The ideal joint distribution for t = 2 alone, shown before the hardware result."""
+def plot_single_joint_t2(data: dict[str, Any], flat: list[float], title: str, stem: str) -> None:
+    """One t = 2 joint distribution alone, on the colour scale of the ideal distribution."""
     run = data["runs"]["t2"]
     figure, ax = plt.subplots(figsize=(12, 2.6))
-    draw_heatmap(
-        ax, joint_matrix(run["ideal"], data["work_values"]), max(run["ideal"]), data["orbit"]
-    )
-    ax.set_title("Ideal: 16 equal cells on the orbit {1, 4, 7, 13}")
+    draw_heatmap(ax, joint_matrix(flat, data["work_values"]), max(run["ideal"]), data["orbit"])
+    ax.set_title(title)
     ax.set_ylabel("count y")
     ax.set_xlabel("work register value")
-    save(figure, "garnet_t2_ideal")
+    save(figure, stem)
+
+
+def plot_ideal_t2(data: dict[str, Any]) -> None:
+    """The ideal joint distribution for t = 2 alone, shown before the hardware result."""
+    plot_single_joint_t2(
+        data,
+        data["runs"]["t2"]["ideal"],
+        "Ideal: 16 equal cells on the orbit {1, 4, 7, 13}",
+        "garnet_t2_ideal",
+    )
+
+
+def plot_emulator_t2(data: dict[str, Any]) -> None:
+    """The emulator prediction for t = 2 alone, shown before the hardware result."""
+    run = data["runs"]["t2"]
+    plot_single_joint_t2(
+        data,
+        run["emulator"],
+        f"Emulator prediction (signal fraction {run['metrics']['predicted_signal_fraction']:.2f})",
+        "garnet_t2_emulator",
+    )
+
+
+def plot_hardware_t2(data: dict[str, Any]) -> None:
+    """The hardware joint distribution for t = 2 alone, shown before the side-by-side comparison."""
+    run = data["runs"]["t2"]
+    plot_single_joint_t2(
+        data,
+        hardware_frequencies(run),
+        f"IQM Garnet, {run['shots']} shots (signal fraction {run['metrics']['signal_fraction']:.2f})",
+        "garnet_t2_hardware",
+    )
 
 
 def plot_stripes_t2(data: dict[str, Any]) -> None:
@@ -343,6 +373,8 @@ def main() -> None:
         data = json.load(handle)
     configure_style()
     plot_ideal_t2(data)
+    plot_emulator_t2(data)
+    plot_hardware_t2(data)
     plot_stripes_t2(data)
     plot_joint_t2(data)
     plot_work_marginal_t2(data)
