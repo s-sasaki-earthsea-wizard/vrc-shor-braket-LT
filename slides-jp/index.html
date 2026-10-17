@@ -975,8 +975,50 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 
 <div class="highlight-box">
 
-* 代償: **乱数でも 75%** 当たり、**重ね合わせの壊れも見えない**
-* では 1 qubit 足して、work ごとに 2 マスなら?
+代償: **乱数でも 75%** 当たり、**重ね合わせの壊れも見えない**
+
+</div>
+
+---
+
+### なぜ 15 が定番なのか
+
+<div class="simple-box">
+
+* Shor の手順が通る**最小の数**。次が 21
+  * 奇数で、素数のべきでない数のうち最小
+* 周期が全部 **2 のべき** → count が少なくて済む
+* 掛け算が**ビットの回転と反転**だけ (Appendix 2)
+  * 16 を 15 で割ると 1 余る → 2 倍はビットの回転
+  * 21 は回転にならず、**3 qubit ゲート**が要る
+
+</div>
+
+<div class="highlight-box">
+
+実機に載る**一番浅い** Shor → 2001 年以来の定番
+
+</div>
+
+---
+
+### では 21 なら?
+
+<div class="simple-box">
+
+* 周期 6 は 2 のべきでない → **干渉が要る**
+  * 同じ余りに複数の $x$ → 壊れが数字に出る
+* 1/6 刻みを読むには count が **7〜8 qubit**
+  * 3 qubit では理想と乱数の差が**約 6 ポイント**
+* 21 の実機例もある (光子 2012、IBM 2019, 2021)
+  * どれも答えを使って縮めた回路
+
+</div>
+
+<div class="highlight-box">
+
+* 問われるのは、count の位相が**最後まで持つか**
+* 15 も 1 qubit 足せば、**壊れが見える**
 
 </div>
 
@@ -1119,6 +1161,8 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 
 * 実機はここで**一区切り**
   * 予測が実測を説明できないまま投げても「またずれた」で終わる
+* 21 はさらに先: **必要条件**を満たせていない
+  * 追加実験が、結果としてそれを確かめていた
 * 先にオフライン (無料) でやること
   * 配置プログラムに「待機時間と T2」を入れる
   * 隣のゲートの影響をモデルに入れる
@@ -1464,12 +1508,15 @@ $$ \lambda = \frac{m - f}{1 - f} $$
 
 ### 参考文献
 
-<div class="simple-box">
+<div class="simple-box ref-list">
 
 * A. Tonomura et al., Am. J. Phys. 57, 117 (1989)
 * P. W. Shor, SIAM J. Comput. 26, 1484 (1997)
 * L. M. K. Vandersypen et al., Nature 414, 883 (2001)
+* E. Martín-López et al., Nat. Photonics 6, 773 (2012)
 * J. A. Smolin, G. Smith, A. Vargo, "Oversimplifying quantum factoring", Nature 499, 163 (2013)
+* M. Amico, Z. H. Saleem, M. Kumph, Phys. Rev. A 100, 012305 (2019)
+* U. Skosana, M. Tame, Sci. Rep. 11, 16599 (2021)
 * C. Gidney, arXiv:2505.15917 (2025)
 * NIST, FIPS 203 / 204 / 205 (2024)
 * Bagourd et al., arXiv:2512.15330

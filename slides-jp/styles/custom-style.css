@@ -315,6 +315,11 @@
     line-height: 1.2;
 }
 
+/* Fit a long reference list on one slide. */
+.reveal .ref-list {
+    font-size: 0.75em;
+}
+
 /* Keep a gap when a box follows another box without a <br>. */
 .reveal .simple-box + .highlight-box,
 .reveal .results-box + .highlight-box,
