@@ -307,6 +307,14 @@
     white-space: nowrap;
 }
 
+/* Center the cells of a grid of dots (count x work tables). */
+.reveal .grid-table table th,
+.reveal .grid-table table td {
+    text-align: center;
+    padding: 2px 10px;
+    line-height: 1.2;
+}
+
 /* Keep a gap when a box follows another box without a <br>. */
 .reveal .simple-box + .highlight-box,
 .reveal .results-box + .highlight-box,

@@ -853,7 +853,7 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 
 ---
 
-### 信号残存率は何を測っていたのか
+### 余りの箱が、指数を覚えている
 
 <div class="simple-box nowrap-table">
 
@@ -867,15 +867,73 @@ $$ \gcd(48,\ 15) = 3, \qquad \gcd(50,\ 15) = 5 $$
 </table>
 
 * count 2 qubit では、work の値が**全部違う**
-* work が $x$ を記録している = **どのスリットを通ったか分かる**二重スリット
-* 理想の分布は、**count を途中で測った場合とまったく同じ**
+  * work を見れば $x$ が分かる
+* 前半の 8 qubit では、同じ work に **64 個の $x$** が並んでいた (4 つおきの縞)
 
 </div>
 
 <div class="highlight-box">
 
-count の重ね合わせが壊れていても**同じ分布**が出る。
-$\lambda$ が見ていたのは**掛け算回路の出来**だけ
+* work は「**どのスリットを通ったか**」の記録
+* 通ったスリットが分かると、**縞は消える**
+
+</div>
+
+---
+
+### 1 マスは均等に広がるだけ
+
+<div class="simple-box grid-table nowrap-table">
+
+<table>
+  <thead>
+    <tr><th rowspan="2">count</th><th colspan="4">逆 QFT の前 (work)</th><th rowspan="2"></th><th colspan="4">逆 QFT の後 (work)</th></tr>
+    <tr><th>1</th><th>4</th><th>7</th><th>13</th><th>1</th><th>4</th><th>7</th><th>13</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>0</td><td>●</td><td></td><td></td><td></td><td>→</td><td>●</td><td>●</td><td>●</td><td>●</td></tr>
+    <tr><td>1</td><td></td><td></td><td>●</td><td></td><td>→</td><td>●</td><td>●</td><td>●</td><td>●</td></tr>
+    <tr><td>2</td><td></td><td>●</td><td></td><td></td><td>→</td><td>●</td><td>●</td><td>●</td><td>●</td></tr>
+    <tr><td>3</td><td></td><td></td><td></td><td>●</td><td>→</td><td>●</td><td>●</td><td>●</td><td>●</td></tr>
+  </tbody>
+</table>
+
+* 1 マスには縞の**間隔**がない → **均等に広がる**だけ
+* ● の確率: 前は 1/4、後は 1/16
+
+</div>
+
+<div class="highlight-box">
+
+後の表が縮めた回路の理想。はじめから**干渉なし**
+
+</div>
+
+---
+
+### 重ね合わせが壊れても、同じ分布
+
+<div class="simple-box">
+
+* 重ね合わせが壊れる = 途中で $x$ を**覗かれた**のと同じ
+  * 毎ショット、どれか **1 マス**から逆 QFT に入る
+* 1 マスは均等に広がる → **同じ 16 マス**
+
+<table>
+  <thead>
+    <tr><th>count</th><th>重ね合わせが保たれていれば</th><th>壊れていたら</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>8 qubit (前半)</td><td>4 本のピーク</td><td>ピークが消えて均等</td></tr>
+    <tr><td>2 qubit (今回)</td><td>16 マスに均等</td><td><strong>16 マスに均等 (同じ)</strong></td></tr>
+  </tbody>
+</table>
+
+</div>
+
+<div class="highlight-box">
+
+壊れていても**見分けがつかない**。$\lambda$ が見ていたのは**掛け算回路の出来**だけ
 
 </div>
 
@@ -885,19 +943,18 @@ $\lambda$ が見ていたのは**掛け算回路の出来**だけ
 
 <div class="simple-box">
 
-* 15 を法とする周期は **1, 2, 4 だけ** — 全部 2 のべき
-* 2 のべきの周期は、2 進数の count で**ぴったり割り切れる**
-  * 干渉で「惜しい値を打ち消す」出番がない
-* 干渉を見るには、周期が 2 のべきでない数が要る
-  * 例: $N = 21$ (底 2 の周期は 6)
+* count の通り数は **2, 4, 8, …** (qubit 1 個で 2 倍)
+* 15 の周期は **1, 2, 4 だけ** — 全部 2 のべき
+  * count を**ぴったり**合わせられる → 1 マスずつ
+* 周期 6 (例: $N = 21$、底 2) は合わせられない
+  * 8 通りにすると $x = 0$ と 6 が**同じ余り**
 
 </div>
 
-<br>
-
 <div class="highlight-box">
 
-「15 の因数分解」は、量子アルゴリズムの検証としては**甘い問題**だった
+* 15 なら**干渉なしでも**周期が出せてしまう
+* 量子アルゴリズムの検証としては**甘い問題**
 
 </div>
 
