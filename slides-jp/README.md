@@ -1,8 +1,9 @@
-# vrc-solar-activity-on-IT
+# vrc-shor-braket-LT
 
 ## 概要
 
-TBA.
+VRChat 物理学集会 LT「Shor のアルゴリズムを量子コンピュータで動かしてみた」のスライド。
+構成と数字の出典は `../docs/talk_outline.md` を参照。
 
 ## 開発環境
 

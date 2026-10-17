@@ -283,3 +283,71 @@
     border-radius: 20px;
     border: 2px solid #6f42c1;
 }
+
+/*********************************************
+ * Tables inside boxes (compact, full width)
+ *********************************************/
+.reveal .results-box table,
+.reveal .simple-box table {
+    font-size: 0.72em;
+    margin: 6px 0;
+    width: 100%;
+}
+
+.reveal .results-box table th,
+.reveal .results-box table td,
+.reveal .simple-box table th,
+.reveal .simple-box table td {
+    padding: 5px 10px;
+    line-height: 1.35;
+}
+
+.reveal .nowrap-table table th,
+.reveal .nowrap-table table td {
+    white-space: nowrap;
+}
+
+/* Center the cells of a grid of dots (count x work tables). */
+.reveal .grid-table table th,
+.reveal .grid-table table td {
+    text-align: center;
+    padding: 2px 10px;
+    line-height: 1.2;
+}
+
+/* Fit a long reference list on one slide. */
+.reveal .ref-list {
+    font-size: 0.75em;
+}
+
+/* Keep a gap when a box follows another box without a <br>. */
+.reveal .simple-box + .highlight-box,
+.reveal .results-box + .highlight-box,
+.reveal .simple-box + .results-box,
+.reveal .results-box + .simple-box {
+    margin-top: 16px;
+}
+
+/*********************************************
+ * Show one panel of a multi-panel figure
+ *
+ * Usage: set the panel height with aspect-ratio on the wrapper and the
+ * panel top with a negative percentage margin-top on the image. Both are
+ * fractions of the source image width, so the crop scales with the slide.
+ *********************************************/
+.reveal .slides section .figure-crop {
+    overflow: hidden;
+    width: 100%;
+    margin: 10px 0;
+}
+
+.reveal .slides section .figure-crop img {
+    display: block;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+    background: none;
+}
